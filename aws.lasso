@@ -16,7 +16,7 @@
 	// Most AWS calls require an access key ID and secret for access to the API.
 	// Many calls also require that the endpoint for your region be set. These
 	// tags allow the access key to be set once and used automatically by all
-	// other tags.  See the documentation about individual AWS modules for
+	// other tags.  See the documentation about individual AWS sub-modules for
 	// information about which variables are required for each call.
 	//
 	// Call with a value to set.  Call without a value to retrieve the set value.
@@ -24,7 +24,6 @@
 	// aws_accesskeyid(key)
 	// aws_secretaccesskey(secret)
 	// aws_region(region)
-	// aws_path(path/to/aws) default '/usr/bin/aws'
 	//
 	define_tag('aws_accesskeyid', -optional='key', -namespace=namespace_global);
 		local_defined('key') ? return(var('_aws_accesskeyid_' = #key));
@@ -38,6 +37,13 @@
 		local_defined('reg') ? return(var('_aws_region_' = #reg));
 		return(@$_aws_region_);
 	/define_tag;
+
+	//
+	// The AWS Path is automatically detected and does not usually need to be changed,
+	// but it can be over-rided with this tag if necessary.
+	//
+	// aws_path(path/to/aws) default '/usr/bin/aws'
+	//
 	define_tag('aws_path', -optional='path', -namespace=namespace_global);
 		local_defined('path') ? return(var('_aws_path_' = #path));
 		var('_aws_path_' = os_process('/usr/bin/which', array('aws'))->read);
@@ -98,35 +104,43 @@
 	// AWS Core
 	//
 
-	// aws(cmd, sub, params, options);
-	// Note: Requires [os_process] permission
+	// aws(cmd, sub, [params]);
+	//
 	// This tag calls the AWS CLI with the specified parameters.
 	// http://docs.aws.amazon.com/cli/latest/userguide/command-structure.html
 	// aws <command> <sub-command> [options and parameters]
 	//
-	// -params expects a map containing an entry for each parameter of the
-	// sub-command. The name will have hyphens added automatically so can be
-	// specified as a simple name, either "output" or "--output" works. The
-	// value will be JSON encoded and can be a string, integer, map, or array as
-	// needed. When a filename is requested it can be specified as file://path
-	// or as a URL http://server/path.
-	// Example [aws('elb','describe-load-balancers',-params=map('max-items'=5))]
+	// Note: Requires [os_process] permission
 	//
-	// -options expects a map containing an entry for each option to the aws
-	// call itself. These are all optional or can be set using the AWS Variables
-	// tags above or the "set configure" command in the terminal.
-	//  	access-key-id sets the access key on this call, defaults to aws_accesskeyid or value from "set configure"
-	//  	secret-access-key sets the secret access key on this call, defaults to aws_secretaccesskey or value from "set configure"
-	//  	region specifies the region to access, defaults to aws_region or value from "set configure"
-	//  	output = [json,text,table] default json
-	//  	debug turns on additional error output
-	//  	no-verify-ssl turns off strict SSL certificate checking
-	//  	no-paginate turns off default pagination
-	//  	query specifies a JMESPath which will be applied to the results
-	//		(see http://jmespath.readthedocs.org/en/latest/specification.html#identifiers)
-	//  	profile specifies a specific profile to be used from "aws configure"
-	//  	version returns the version and exits
-	//  	color = [on,off,auto] default off
+	// Additional name/value parameters are appended to the command.  Parameters
+	// will be automatically prefixed with -- and underscores will be replaced
+	// with hyphens. For example, the AWS parameter --max-items should be
+	// specified as -max_items. Values will be properly quoted and map or array
+	// values will be JSON encoded. Arrays of parameters can also be passed and
+	// will be expanded like for [inline] tags.
+	//
+	// aws('elb', 'describe-load-balancers', -max_items=5)
+	//
+	// The following parameters have special meanings:
+	//
+	// -filters can be set to a map which defines a set of criteria to pass to
+	// the sub-command.  Many sub-commands use this to allow simple searching
+	// capabilities.  The sub-modules of this API define filters which can be
+	// used for many common search types.
+	//
+	// -query can be set to a string containing a JMESPath query to filter what
+	// JSON data is returned. The sub-modules of this API define queries which
+	// return many common data types.  More info: http://jmespath.org/
+	//
+	// -access_key_id override, defaults to [aws_accesskeyid].
+	//
+	// -secret_access_key override, defaults to [aws_secretaccesskey].
+	//
+	// -region override, defaults to [aws_region]
+	//
+	// -output override, defaults to "json", can be set to "text" or "table"
+	//
+
 	define_tag('aws', -required='cmd', -required='sub', -namespace=namespace_global);
 
 		local('aws_env' = array);
@@ -228,7 +242,7 @@
 	/define_tag;
 
 	// aws_cmd();
-	// Returns the raw command parameters
+	// Returns the raw curl command
 	define_tag('aws_cmd', -namespace=namespace_global);
 		return(var('_aws_cmd_'));
 	/define_tag;
