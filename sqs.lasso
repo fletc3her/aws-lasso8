@@ -289,15 +289,15 @@
 	// Note: Attribute names are case sensitive.
 	//
 	// -queue_url = (url, required, also accepts a map with a "QueueURL" entry)
-	// -attribute_names = (array of strings, optional, defaults to none)
-	// -message_attribute_names = (array of strings, optional, defaults to none)
 	// -max_number_of_messages = (integer, optional, defaults to 1)
 	// -visibility_timeout = (integer seconds, optional, queue default)
 	// -wait_time_seconds = (integer seconds, optional, defaults to 0 for short poll)
+	// -attribute_names = (array of strings, optional, defaults to 'All')
+	// -message_attribute_names = (array of strings, optional, defaults to 'All')
 	//
 	// http://docs.aws.amazon.com/cli/latest/reference/sqs/receive_message.html
-	define_tag('sqs_receive_message', -required='queue_url', -optional='attribute_names', -optional='message_attribute_names', -optional='max_number_of_messages', -optional='visibility_timeout', -optional='wait_time_seconds');
-		iterate(array('queue_url', 'attribute_names', 'message_attribute_names', 'max_number_of_messages', 'visibility_timeout', 'wait_time_seconds'), local('_p'));
+	define_tag('sqs_receive_message', -required='queue_url', -optional='max_number_of_messages', -optional='wait_time_seconds', -optional='visibility_timeout', -optional='attribute_names', -optional='message_attribute_names');
+		iterate(array('queue_url', 'max_number_of_messages', 'wait_time_seconds', 'visibility_timeout', 'attribute_names', 'message_attribute_names'), local('_p'));
 			if(local_defined(#_p));
 				params->removeall('-' + #_p) & removeall(local(#_p));
 				// Extract Queue URL From Map
@@ -305,6 +305,8 @@
 				params->insert(('-' + #_p)=local(#_p));
 			/if;
 		/iterate;
+		params !>> -attribute_names ? params->insert(-attribute_names='All');
+		params !>> -message_attribute_names ? params->insert(-message_attribute_names='All');
 		return(aws('sqs', 'receive-message', params));
 	/define_tag;
 
@@ -330,14 +332,22 @@
 
 	// sqs_send_message
 	//
-	// Sends a message to the queue.  The message body is a string.  See the documentation
-	// for some limitations on the possible Unicode values.  Optional delay parameter
-	// allows the message to be hidden from the queue for that number of seconds.  Optional
-	// message attributes can be used to pass additional values beside the message body.
+	// Sends a message to the queue.  The message body is a string.  See the
+	// documentation for some limitations on the possible Unicode values.
+	// Optional delay parameter allows the message to be hidden from the queue
+	// for that number of seconds.  Optional message attributes can be used to
+	// pass additional values beside the message body.
+	//
+	// Message attributes must be set as a map with a value and type.  See the
+	// documentation for full details.  For example:
+	// -message_attributes=map('myattribute'=map('StringValue'='myvalue', 'DataType'='String'))
+	// -message_attributes=map('myattribute'=map('BinaryValue'='blob', 'DataType'='Binary'))
+	//
+	// Note: Attribute map names and data type names are case sensitive.
+	//
 	//
 	// -queue_url = (url, required, also accepts a map with a "QueueURL" entry)
 	// -message_body = (string, required)
-	// -message_attribute_names = (array of strings, optional, defaults to none)
 	// -delay_seconds = (integer seconds, optional, defaults to 0)
 	// -message_attributes = (map, optional)
 	//
