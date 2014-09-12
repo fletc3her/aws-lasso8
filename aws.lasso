@@ -83,20 +83,20 @@
 						loop_abort;
 					/if;
 					local('s' = #i->second->isa('string') ? @#i->second | string(#i->second));
-					#output->insert(#i->first + '=' + (#s >> '"' ? '"' + encode_sql(#s) + '"' | #s));
+					#output->insert(#i->first + '=' + (#s >> '"' || #s >> ' ' ? '"' + encode_sql(#s) + '"' | #s));
 				else(#i->isa('array') || #i->isa('map'));
 					local('simple'=false);
 					loop_abort;
 				else;
 					local('s' = string(#i));
-					#output->insert(#s >> '"' ? '"' + encode_sql(#s) + '"' | #s);
+					#output->insert(#s >> '"' || #s >> ' ' ? '"' + encode_sql(#s) + '"' | #s);
 				/if;
 			/iterate;
 			#simple ? return(#output->join(','));
 			return('"' + encode_sql(encode_json(#input)) + '"');
 		else;
 			local('s' = #input->isa('string') ? @#input | string(#input));
-			return(#s >> '"' ? '"' + encode_sql(#s) + '"' | #s);
+			return(#s >> '"' || #s >> ' ' ? '"' + encode_sql(#s) + '"' | #s);
 		/if;
 	/define_tag;
 
@@ -184,8 +184,9 @@
 					iterate(#value, local('v'));
 						#aws_prm->insert(aws_encode(#v));
 					/iterate;
+				else(#value == '');
+					loop_continue; // Ignore Empty Parameters
 				else;
-					#value == '' ? loop_continue; // Ignore Empty Parameters
 					#aws_prm->insert('--' + #name) & insert(aws_encode(#value));
 				/if;
 			else(#p->isa('keyword'));
