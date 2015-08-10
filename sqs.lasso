@@ -44,7 +44,7 @@
 	// -actions = (array of strings, required)
 	//
 	// http://docs.aws.amazon.com/cli/latest/reference/sqs/add_permission.html
-	define_tag('sqs_add_permission', -required='queue_url', -required='label', -required='aws_account_ids', -required='actions');
+	define_tag('sqs_add_permission', -required='queue_url', -required='label', -required='aws_account_ids', -required='actions', -namespace=namespace_global);
 		iterate(array('queue_url', 'label', 'aws_account_ids', 'actions'), local('_p'));
 			if(local_defined(#_p));
 				params->removeall('-' + #_p) & removeall(local(#_p));
@@ -69,7 +69,7 @@
 	// -visibility_timeout = (integer seconds, required)
 	//
 	// http://docs.aws.amazon.com/cli/latest/reference/sqs/change_message_visibility.html
-	define_tag('sqs_change_message_visibility');
+	define_tag('sqs_change_message_visibility', -namespace=namespace_global);
 		iterate(array('queue_url', 'receipt_handle', 'visibility_timeout'), local('_p'));
 			if(local_defined(#_p));
 				params->removeall('-' + #_p) & removeall(local(#_p));
@@ -96,7 +96,7 @@
 	// -entries = (map)
 	//
 	// http://docs.aws.amazon.com/cli/latest/reference/sqs/change_message_visibility_batch.html
-	define_tag('sqs_change_message_visibility_batch', -required='queue_url', -required='entries');
+	define_tag('sqs_change_message_visibility_batch', -required='queue_url', -required='entries', -namespace=namespace_global);
 		iterate(array('queue_url', 'entries'), local('_p'));
 			if(local_defined(#_p));
 				params->removeall('-' + #_p) & removeall(local(#_p));
@@ -118,7 +118,7 @@
 	// -attributes = map (map of parameters for the queue, see docs, optional)
 	//
 	// http://docs.aws.amazon.com/cli/latest/reference/sqs/create-queue.html
-	define_tag('sqs_create_queue', -required='queue_name', -optional='attributes');
+	define_tag('sqs_create_queue', -required='queue_name', -optional='attributes', -namespace=namespace_global);
 		iterate(array('queue_name', 'attributes'), local('_p'));
 			local_defined(#_p) ? params->removeall('-' + #_p) & removeall(local(#_p)) & insert(('-' + #_p)=local(#_p));
 		/iterate;
@@ -136,7 +136,7 @@
 	// -receipt-handle = (handle, required, also accepts a map with a "ReceiptHandle" entry)
 	//
 	// http://docs.aws.amazon.com/cli/latest/reference/sqs/delete_message.html
-	define_tag('sqs_delete_message', -required='queue_url', -required='receipt_handle');
+	define_tag('sqs_delete_message', -required='queue_url', -required='receipt_handle', -namespace=namespace_global);
 		iterate(array('queue_url', 'receipt_handle'), local('_p'));
 			if(local_defined(#_p));
 				params->removeall('-' + #_p) & removeall(local(#_p));
@@ -163,7 +163,7 @@
 	// -entries = (map)
 	//
 	// http://docs.aws.amazon.com/cli/latest/reference/sqs/delete_message_batch.html
-	define_tag('sqs_delete_message_batch', -required='queue_url', -required='entries');
+	define_tag('sqs_delete_message_batch', -required='queue_url', -required='entries', -namespace=namespace_global);
 		iterate(array('queue_url', 'entries'), local('_p'));
 			if(local_defined(#_p));
 				params->removeall('-' + #_p) & removeall(local(#_p));
@@ -182,7 +182,7 @@
 	// -queue_url = (url, required, also accepts a map with a "QueueURL" entry)
 	//
 	// http://docs.aws.amazon.com/cli/latest/reference/sqs/delete_queue.html
-	define_tag('sqs_delete_queue', -required='queue_url');
+	define_tag('sqs_delete_queue', -required='queue_url', -namespace=namespace_global);
 		iterate(array('queue_url'), local('_p'));
 			if(local_defined(#_p));
 				params->removeall('-' + #_p) & removeall(local(#_p));
@@ -210,7 +210,7 @@
 	// -attribute_namess = (array of strings, optional, defaults to "All")
 	//
 	// http://docs.aws.amazon.com/cli/latest/reference/sqs/get_queue_attributes.html
-	define_tag('sqs_get_queue_attributes', -required='queue_url', -optional='attribute_names');
+	define_tag('sqs_get_queue_attributes', -required='queue_url', -optional='attribute_names', -namespace=namespace_global);
 		iterate(array('queue_url', 'attribute_names'), local('_p'));
 			if(local_defined(#_p));
 				params->removeall('-' + #_p) & removeall(local(#_p));
@@ -232,7 +232,7 @@
 	// -queue_owner_aws_account_id = (string, optional, defaults to current account)
 	//
 	// http://docs.aws.amazon.com/cli/latest/reference/sqs/get_queue_url.html
-	define_tag('sqs_get_queue_url', -required='queue_name', -optional='queue_owner_aws_account_id');
+	define_tag('sqs_get_queue_url', -required='queue_name', -optional='queue_owner_aws_account_id', -namespace=namespace_global);
 		iterate(array('queue_name','queue_owner_aws_account_id'), local('_p'));
 			local_defined(#_p) ? params->removeall('-' + #_p) & removeall(local(#_p)) & insert(('-' + #_p)=local(#_p));
 		/iterate;
@@ -246,7 +246,7 @@
 	// -queue_url = (url, required, also accepts a map with a "QueueURL" entry)
 	//
 	// http://docs.aws.amazon.com/cli/latest/reference/sqs/list_dead_letter_source_queues.html
-	define_tag('sqs_list_dead_letter_source_queues', -required='queue_url');
+	define_tag('sqs_list_dead_letter_source_queues', -required='queue_url', -namespace=namespace_global);
 		iterate(array('queue_url'), local('_p'));
 			if(local_defined(#_p));
 				params->removeall('-' + #_p) & removeall(local(#_p));
@@ -267,7 +267,7 @@
 	// -queue_name_prefix = (string, optional)
 	//
 	// http://docs.aws.amazon.com/cli/latest/reference/sqs/list-queues.html
-	define_tag('sqs_list_queues', -optional='queue_name_prefix');
+	define_tag('sqs_list_queues', -optional='queue_name_prefix', -namespace=namespace_global);
 		iterate(array('queue_name_prefix'), local('_p'));
 			local_defined(#_p) ? params->removeall('-' + #_p) & removeall(local(#_p)) & insert(('-' + #_p)=local(#_p));
 		/iterate;
@@ -296,7 +296,7 @@
 	// -message_attribute_names = (array of strings, optional, defaults to 'All')
 	//
 	// http://docs.aws.amazon.com/cli/latest/reference/sqs/receive_message.html
-	define_tag('sqs_receive_message', -required='queue_url', -optional='max_number_of_messages', -optional='wait_time_seconds', -optional='visibility_timeout', -optional='attribute_names', -optional='message_attribute_names');
+	define_tag('sqs_receive_message', -required='queue_url', -optional='max_number_of_messages', -optional='wait_time_seconds', -optional='visibility_timeout', -optional='attribute_names', -optional='message_attribute_names', -namespace=namespace_global);
 		iterate(array('queue_url', 'max_number_of_messages', 'wait_time_seconds', 'visibility_timeout', 'attribute_names', 'message_attribute_names'), local('_p'));
 			if(local_defined(#_p));
 				params->removeall('-' + #_p) & removeall(local(#_p));
@@ -318,7 +318,7 @@
 	// -label = (string, required, your name for this permission entry)
 	//
 	// http://docs.aws.amazon.com/cli/latest/reference/sqs/remove_permission.html
-	define_tag('sqs_remove_permission', -required='queue_url', -required='label');
+	define_tag('sqs_remove_permission', -required='queue_url', -required='label', -namespace=namespace_global);
 		iterate(array('queue_url', 'label'), local('_p'));
 			if(local_defined(#_p));
 				params->removeall('-' + #_p) & removeall(local(#_p));
@@ -352,7 +352,7 @@
 	// -message_attributes = (map, optional)
 	//
 	// http://docs.aws.amazon.com/cli/latest/reference/sqs/send_message.html
-	define_tag('sqs_send_message', -required='queue_url', -required='message_body', -optional='delay_seconds', -optional='message_attributes');
+	define_tag('sqs_send_message', -required='queue_url', -required='message_body', -optional='delay_seconds', -optional='message_attributes', -namespace=namespace_global);
 		// Parameters
 		iterate(array('queue_url', 'message_body', 'delay_seconds', 'message_attributes'), local('_p'));
 			if(local_defined(#_p));
@@ -378,7 +378,7 @@
 	// -entries = (map)
 	//
 	// http://docs.aws.amazon.com/cli/latest/reference/sqs/send_message_batch.html
-	define_tag('sqs_send_message_batch', -required='queue_url', -required='entries');
+	define_tag('sqs_send_message_batch', -required='queue_url', -required='entries', -namespace=namespace_global);
 		// Parameters
 		iterate(array('queue_url', 'entries'), local('_p'));
 			if(local_defined(#_p));
@@ -405,7 +405,7 @@
 	// -attributes = (array of strings, required)
 	//
 	// http://docs.aws.amazon.com/cli/latest/reference/sqs/set_queue_attributes.html
-	define_tag('sqs_set_queue_attributes', -required='queue_url', -required='attributes');
+	define_tag('sqs_set_queue_attributes', -required='queue_url', -required='attributes', -namespace=namespace_global);
 		iterate(array('queue_url', 'attributes'), local('_p'));
 			if(local_defined(#_p));
 				params->removeall('-' + #_p) & removeall(local(#_p));
