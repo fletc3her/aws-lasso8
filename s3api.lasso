@@ -55,4 +55,18 @@
 		return(aws('s3api', 'list-objects', params));
 	/define_tag;
 
+	// s3api_key_array
+	//
+	// Utility function takes the output of s3api_list_objects and returns a simple array of object keys
+	//
+	define_tag('s3api_keyarray', -required='list', -namespace=namespace_global);
+		local('out' = array);
+		!#list->isa('map') ? return(@#out);
+		#list !>> 'contents' ? return(@#out);
+		iterate(#list->find('contents'), local('object'));
+			#out->insert(#object->find('key'));
+		/iterate;
+		return(@#out);
+	/define_tag;
+
 ?>
